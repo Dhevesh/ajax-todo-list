@@ -1,0 +1,33 @@
+body {
+  padding-top: 80px;
+}
+
+.form-header{
+  background-image: linear-gradient(to bottom, rgba(80,50,220, 1.0), rgba(80,50,220, 1.0), rgba(80,50,220, 0.9))
+}
+
+.form-header-text{
+  font-size: 2.0rem;
+  color: #fff;
+}
+
+.new-item{
+  display: none;
+}
+
+.btn-ico{
+  background: none;
+  outline: none;
+  border: none;
+  color: #fff;
+}
+
+button:focus{
+  outline: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.editItem{
+  display: none;
+}
