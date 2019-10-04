@@ -1,17 +1,17 @@
 // DISPLAY
 
 $.ajax({
-    url : 'http://localhost:3000/todos'
+    url: 'http://localhost:3000/todos'
 }).done(getTodos);
 
-$('.btn-ico').on('click', ()=>{
+$('.btn-ico').on('click', () => {
     $('.new-item').toggle();
     $('#new-todo-item').focus();
-    
+
 });
 
-function getTodos(todos){
-    for (todo of todos){
+function getTodos(todos) {
+    for (todo of todos) {
         $("#todo-list").append(
             `
             <li class="list-group-item">
@@ -36,12 +36,19 @@ function getTodos(todos){
 }
 
 // NEW ITEM
-$('#newItem').submit(function(e){
+$('#newItem').submit(function (e) {
     e.preventDefault();
-    var todoItem = $(this).serialize();
-    $.post("http://localhost:3000/todos", todoItem, function(newTodo){
-        $("#todo-list").append(
-            `
+    let todoItem = $(this).serialize();
+    $.ajax({
+        url: "http://localhost:3000/todos",
+        data: todoItem,
+        type: 'POST'
+    }).done(addNewTodo);
+});
+
+function addNewTodo(newTodo) {
+    $("#todo-list").append(
+        `
             <li class="list-group-item">
             <form id="editItem" class="editItem" action="/todos/${newTodo._id}" method="POST">
                 <input id="${newTodo._id} type="text" value="${newTodo.text}" name="todo[text]" class="form-control mb-4" required>
@@ -59,19 +66,18 @@ $('#newItem').submit(function(e){
             <div class="clearfix"></div>
             </li>
             `
-        );
-    });
+    );
     $(this).find(".form-control").val("");
     $(this).find('.form-control').focus();
-});
+}
 
 // EDIT FUNCTIONALITY
 
-$("#todo-list").on("click", ".edit-button", function(){
+$("#todo-list").on("click", ".edit-button", function () {
     $(this).parent().siblings("#editItem").toggle();
     $(this).parent().siblings("#editItem").trigger('reset');
     $(this).parent().siblings("form").children('input').focus();
-    if ($(this).text() == 'Edit'){
+    if ($(this).text() == 'Edit') {
         $(this).text('Cancel');
         $(this).removeClass('btn-warning');
         $(this).addClass('btn-secondary');
@@ -82,19 +88,22 @@ $("#todo-list").on("click", ".edit-button", function(){
     }
 });
 
-$('#todo-list').on("submit", ".editItem", function(e){
+$('#todo-list').on("submit", ".editItem", function (e) {
     e.preventDefault();
-    var todoItem = $(this).serialize();
-    var formAction = "http://localhost:3000" + $(this).attr('action');
+    let todoItem = $(this).serialize();
+    let formAction = "http://localhost:3000" + $(this).attr('action');
     $originalItem = $(this).parent(".list-group-item");
     $.ajax({
-        url:  formAction,
+        url: formAction,
         data: todoItem,
         type: 'PUT',
-        originalItem : $originalItem,
-        success: function(todo){
-            this.originalItem.html(
-           `
+        originalItem: $originalItem
+    }
+    ).done(editTodo);
+
+    function editTodo(todo) {
+        this.originalItem.html(
+            `
            <form id="editItem" class="editItem" action="/todos/${todo._id}" method="POST">
                     <input id="${todo._id}" type="text" value="${todo.text}" name="todo[text]" class="form-control mb-4" required>
                 <button class="btn btn-sm btn-success">Update Item</button>
@@ -110,24 +119,22 @@ $('#todo-list').on("submit", ".editItem", function(e){
                 </div>
             <div class="clearfix"></div>
            `
-            );
-        }
+        );
     }
-    );
 });
 
 // DELETE FUNCTIONALITY
-$("#todo-list").on("submit", "#removeItem", function(e){
+$("#todo-list").on("submit", "#removeItem", function (e) {
     e.preventDefault();
-    var confirmResponse = confirm("Are you sure?");
-    if (confirmResponse){
-        var actionUrl = "http://localhost:3000" + $(this).attr('action');
+    let confirmResponse = confirm("Are you sure?");
+    if (confirmResponse) {
+        let actionUrl = "http://localhost:3000" + $(this).attr('action');
         $itemToDelete = $(this).closest(".list-group-item");
         $.ajax({
             url: actionUrl,
             type: "DELETE",
             itemToDelete: $itemToDelete,
-            success: function(data){
+            success: function (data) {
                 this.itemToDelete.remove();
             }
         });
